@@ -1,0 +1,1405 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>私密旅费管家 - 萌趣版</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+    <style>
+        :root { }
+        body { 
+            background: #fdfaf6; 
+            overflow-x: hidden;
+            font-family: "Comic Sans MS", 幼圆, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .glass-card { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(10px); 
+            border-radius: 20px; /* 缩小圆角 */
+            transition: transform 0.3s ease; 
+            position: relative; 
+            z-index: 10; 
+            cursor: pointer;
+        }
+        .glass-card:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .swipe-item { position: relative; overflow: hidden; border-radius: 20px; margin-bottom: 0.6rem; /* 缩小项目间距 */ }
+        /* 萌趣删除按钮 */
+        .delete-btn { 
+            position: absolute; 
+            right: 0; 
+            top: 0; 
+            bottom: 0; 
+            width: 70px; /* 缩小删除按钮 */
+            background: #ff9e80; 
+            color: white; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-weight: bold; 
+            border-radius: 8px 16px; /* 适配缩小尺寸 */
+            z-index: 1; 
+            cursor: pointer; 
+            font-size: 12px; 
+            letter-spacing: 1px;
+            border: 2px solid #333;
+        }
+        /* 头部背景渐变 - 高度大幅压缩 */
+        .header-box { 
+            height: 220px; /* 从350→220，核心压缩 */
+            border-bottom-left-radius: 30px; 
+            border-bottom-right-radius: 30px; 
+            overflow: hidden; 
+            position: relative; 
+            cursor: ns-resize; 
+            background: linear-gradient(135deg, #ffd5b8, #e86850); 
+        }
+        #bg-preview { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
+        .tab-active { 
+            transform: scale(1.05); 
+            font-weight: 900; 
+            border-width: 2px !important; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); 
+        }
+        /* 笔记弹窗 */
+        #overlay { 
+            background: rgba(0,0,0,0.6); 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            z-index: 200; 
+            align-items: center; 
+            justify-content: center; 
+            backdrop-filter: blur(5px); 
+        }
+        .note-popup {
+            width: 80%;
+            max-width: 300px;
+            background: linear-gradient(135deg, #ffd5b8, #e86850); 
+            border-radius: 24px;
+            padding: 18px; /* 缩小弹窗内边距 */
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            border: 2px solid #333;
+        }
+        .popup-close {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 22px; /* 缩小关闭按钮 */
+            height: 22px;
+            background: #ff9e80;
+            color: white;
+            border-radius: 8px 4px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid #333;
+        }
+        .note-input {
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            outline: none;
+            border-radius: 8px 12px;
+            padding: 10px 12px; /* 缩小输入框内边距 */
+            margin-bottom: 12px;
+            font-family: "Comic Sans MS", 幼圆;
+            font-size: 13px;
+            min-height: 100px; /* 缩小输入框高度 */
+            resize: none;
+        }
+        .popup-label {
+            font-size: 14px; /* 缩小标签字体 */
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 0 #333;
+            margin-bottom: 6px;
+            display: block;
+            text-align: center;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .progress-fill { 
+            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1); 
+            background: #e86850 !important; 
+        }
+        #tab-bar .goal-tab {
+            color: #333 !important; 
+            font-size: 9px !important; /* 保持胶囊标签字体大小 */
+            background: #fff !important; 
+            border: 1px solid #ffd5b8 !important; 
+            transition: all 0.2s ease;
+            border-radius: 8px 16px !important; /* 适配缩小尺寸 */
+            padding: 2px 8px !important; /* 保持胶囊内边距 */
+            margin: 0 !important;
+        }
+        .goal-tab-delete {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            width: 14px; /* 缩小标签删除按钮 */
+            height: 14px;
+            background: #ff9e80;
+            color: white;
+            border-radius: 8px 2px;
+            font-size: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            border: 1px solid #333;
+        }
+        .goal-tab:hover .goal-tab-delete {
+            opacity: 1;
+        }
+        /* 总目标数字 - 缩小字体 */
+        .total-goal-number {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 15;
+            font-size: 36px; /* 从48→36 */
+            font-weight: 900;
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 0 #333;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+            border: none;
+            background: transparent;
+            outline: none;
+            width: 100%;
+            padding: 0 15px;
+            box-sizing: border-box;
+            font-family: "Comic Sans MS", 幼圆;
+        }
+        .total-goal-placeholder {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 14;
+            font-size: 20px; /* 从24→20 */
+            font-weight: 600;
+            color: white;
+            text-align: center;
+            text-shadow: 2px 2px 0 #333;
+            opacity: 0.8;
+            font-family: "Comic Sans MS", 幼圆;
+        }
+        /* 存入梦想金按钮 - 缩小尺寸 */
+        .fuggler-btn {
+            background: #e86850 !important;
+            border: 2px solid #333 !important;
+            font-family: "Comic Sans MS", 幼圆 !important;
+            text-shadow: 1px 1px 0 #000 !important;
+            border-radius: 8px 16px !important;
+            padding: 8px 0 !important; /* 缩小按钮内边距 */
+            font-size: 16px !important; /* 从18→16 */
+        }
+        /* 备忘录首行 */
+        .note-preview {
+            font-size: 10px;
+            color: #555;
+            margin-top: 4px;
+            padding-left: 4px;
+            border-left: 2px solid #ffd5b8;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        /* 金额显示 */
+        .amount-display {
+            font-size: 11px;
+            font-weight: bold;
+            color: #e86850;
+            opacity: 0.8;
+        }
+        #quote-overlay { 
+            background: rgba(0,0,0,0.8); 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            z-index: 100; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 30px; /* 缩小弹窗内边距 */
+            backdrop-filter: blur(5px); 
+        }
+
+        /* ========== 灵感库样式（独立页面） ========== */
+        #inspire-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #fdfaf6;
+            z-index: 300;
+            display: none;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        /* 灵感库头部 - 缩小高度 */
+        .inspire-header {
+            background: linear-gradient(135deg, #ffd5b8, #e86850);
+            padding: 15px 12px; /* 缩小内边距 */
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            color: white;
+            position: relative;
+        }
+        .inspire-back-btn {
+            position: absolute;
+            top: 15px;
+            left: 12px;
+            width: 32px; /* 缩小返回按钮 */
+            height: 32px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 8px 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid #333;
+            color: #e86850;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .inspire-header-title {
+            text-align: center;
+            font-size: 18px; /* 缩小标题字体 */
+            font-weight: bold;
+            text-shadow: 1px 1px 0 #333;
+            padding-top: 8px;
+        }
+        /* 灵感库内容区 */
+        .inspire-content {
+            flex: 1;
+            padding: 12px; /* 缩小内边距 */
+        }
+        .inspire-add-btn {
+            display: block;
+            width: 100%;
+            background: #e86850;
+            border: 2px solid #333;
+            border-radius: 8px 16px;
+            padding: 10px; /* 缩小按钮内边距 */
+            color: white;
+            font-weight: bold;
+            font-family: "Comic Sans MS", 幼圆;
+            text-shadow: 1px 1px 0 #000;
+            text-align: center;
+            margin-bottom: 12px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        /* 灵感分类标签栏 */
+        .inspire-tabs {
+            display: flex;
+            gap: 3px;
+            overflow-x: auto;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .inspire-tab {
+            padding: 3px 10px; /* 缩小标签内边距 */
+            background: #fff;
+            border: 1px solid #ffd5b8;
+            border-radius: 8px 12px;
+            font-size: 9px; /* 缩小标签字体 */
+            font-weight: bold;
+            color: #333;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        .inspire-tab.active {
+            background: #e86850;
+            color: white;
+            border-color: #e86850;
+        }
+        /* 灵感卡片 */
+        .inspire-card {
+            background: white;
+            border-radius: 14px;
+            padding: 10px; /* 缩小卡片内边距 */
+            margin-bottom: 8px;
+            border: 1px solid #ffd5b8;
+            position: relative;
+            transition: transform 0.2s ease;
+        }
+        /* 晃动动画（编辑模式） */
+        .inspire-card.shake {
+            animation: shake 0.3s infinite alternate;
+        }
+        @keyframes shake {
+            0% { transform: rotate(-2deg); }
+            100% { transform: rotate(2deg); }
+        }
+        /* 灵感删除叉号（默认隐藏） */
+        .inspire-delete {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 18px; /* 缩小删除按钮 */
+            height: 18px;
+            background: #ff9e80;
+            color: white;
+            border-radius: 8px 4px;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid #333;
+            display: none;
+        }
+        /* 编辑模式显示删除叉号 */
+        .edit-mode .inspire-delete {
+            display: flex;
+        }
+        .inspire-title {
+            font-size: 13px; /* 缩小标题字体 */
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #333;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .inspire-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 9px; /* 缩小元信息字体 */
+            color: #666;
+            margin-bottom: 6px;
+        }
+        .inspire-actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+        }
+        .check-btn {
+            width: 18px; /* 缩小打卡按钮 */
+            height: 18px;
+            border-radius: 8px 4px;
+            border: 1px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            cursor: pointer;
+            background: #fff;
+            color: transparent;
+        }
+        .check-btn.checked {
+            background: #e86850;
+            color: white;
+        }
+        .link-btn {
+            font-size: 9px; /* 缩小链接按钮字体 */
+            color: #e86850;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        /* 新增灵感弹窗 */
+        #inspire-popup {
+            background: rgba(0,0,0,0.6);
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 400;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(5px);
+        }
+        .inspire-form {
+            width: 80%;
+            max-width: 300px;
+            background: linear-gradient(135deg, #ffd5b8, #e86850);
+            border-radius: 20px;
+            padding: 18px; /* 缩小弹窗内边距 */
+            border: 2px solid #333;
+        }
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            outline: none;
+            border-radius: 8px 12px;
+            padding: 8px 10px; /* 缩小输入框内边距 */
+            margin-bottom: 8px;
+            font-family: "Comic Sans MS", 幼圆;
+            font-size: 11px;
+        }
+        .form-select {
+            width: 100%;
+            background: rgba(255,255,255,0.9);
+            border: none;
+            outline: none;
+            border-radius: 8px 12px;
+            padding: 8px 10px; /* 缩小选择框内边距 */
+            margin-bottom: 8px;
+            font-family: "Comic Sans MS", 幼圆;
+            font-size: 11px;
+        }
+        .form-label {
+            font-size: 11px; /* 缩小标签字体 */
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 0 #333;
+            margin-bottom: 3px;
+            display: block;
+        }
+        /* 提示弹窗 */
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 6px 12px; /* 缩小提示框内边距 */
+            border-radius: 8px 12px;
+            font-size: 11px;
+            font-family: "Comic Sans MS", 幼圆;
+            display: none;
+            z-index: 500;
+            border: 1px solid #fff;
+        }
+
+        /* ========== 主页面压缩核心样式 ========== */
+        #main-container {
+            max-w-md: 100%; /* 适配手机全屏 */
+            margin: 0 auto;
+            min-h-screen: 100vh;
+            background: white;
+            box-shadow: none; /* 去掉阴影节省空间 */
+        }
+        /* 胶囊标签栏 - 压缩间距，保持字体大小 */
+        #tab-bar {
+            padding: 10px 12px 4px 12px !important; /* 大幅压缩上下内边距 */
+            gap: 2px !important; /* 缩小胶囊间距 */
+        }
+        /* 内容区 - 压缩内边距 */
+        #content-area {
+            padding: 0 12px !important; /* 从4px→12px，更紧凑 */
+        }
+        /* 头部容器 - 压缩间距 */
+        #header-container {
+            margin: 2px 0 8px 0 !important; /* 压缩上下间距 */
+        }
+        /* 字体/主题色栏 - 压缩间距 */
+        .px-6.mt-6.flex {
+            padding: 0 12px !important;
+            margin: 4px 0 8px 0 !important; /* 从mt-6→mt-1 */
+        }
+        /* 项目列表 - 压缩间距 */
+        main#step-list {
+            padding: 0 12px !important;
+            margin: 0 0 8px 0 !important; /* 压缩上下间距 */
+            gap: 0.6rem !important; /* 缩小项目间距 */
+        }
+        /* 项目卡片 - 压缩内边距 */
+        .glass-card.p-6 {
+            padding: 12px !important; /* 从6→12px，大幅压缩 */
+            gap: 2px !important; /* 缩小内部间距 */
+        }
+        /* 按钮区 - 压缩间距 */
+        .px-6:has(.mt-4.text-[10px]) {
+            padding: 0 12px !important;
+            margin: 0 0 8px 0 !important;
+        }
+        /* 新增项目/灵感库按钮 - 压缩内边距和间距 */
+        .mt-4.text-[10px], .mt-2.text-[10px] {
+            margin-top: 4px !important; /* 压缩按钮间距 */
+            padding: 8px 0 !important; /* 从py-4→py-2，压缩按钮高度 */
+            font-size: 9px !important; /* 缩小按钮字体 */
+        }
+        /* 提示文字 - 缩小字体和间距 */
+        .text-center.text-[9px] {
+            font-size: 8px !important;
+            margin-top: 4px !important;
+            margin-bottom: 4px !important;
+        }
+        /* 底部进度栏 - 压缩内边距，新增进度条样式 */
+        footer {
+            padding: 12px 12px !important; /* 从p-8→p-3，大幅压缩 */
+            gap: 4px !important; /* 调整内部间距 */
+            border-top: 1px solid #f0f0f0;
+        }
+        /* 底部总进度条样式 - 半透明渐变 */
+        .total-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(240, 240, 240, 0.5);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 4px;
+        }
+        .total-progress-fill {
+            height: 100%;
+            /* 半透明橙红渐变 */
+            background: linear-gradient(90deg, rgba(232, 104, 80, 0.4), rgba(232, 104, 80, 0.9));
+            transition: width 1s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border-radius: 3px;
+        }
+        /* 进度文字 - 缩小字体 */
+        #progress-text {
+            font-size: 28px !important; /* 从4xl→28px */
+        }
+        /* 进度标签 - 缩小字体 */
+        .text-[10px].font-black.text-gray-400 {
+            font-size: 8px !important;
+        }
+    </style>
+</head>
+<body class="pb-0"> <!-- 去掉底部内边距 -->
+    <div id="main-container" class="max-w-md mx-auto min-h-screen relative shadow-2xl bg-white min-h-[100vh]">
+        <div class="flex gap-3 px-6 pt-8 pb-2 overflow-x-auto no-scrollbar" id="tab-bar"></div>
+        <div id="content-area" class="px-4">
+            <div class="header-box shadow-xl mx-0 mt-4" id="header-container" onmousedown="startDrag(event)" ontouchstart="startDrag(event)">
+                <img id="bg-preview" src="">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
+                <div id="total-goal-placeholder" class="total-goal-placeholder">攒钱总目标</div>
+                <input type="text" id="total-goal-number" class="total-goal-number" placeholder="" onblur="updateTotalGoal(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
+                <label class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-white/80 text-2xl cursor-pointer bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                    ＋<input type="file" accept="image/*" class="hidden" id="bg-file-input" onchange="loadImgForCurrentGoal(this)">
+                </label>
+                <div class="absolute bottom-6 left-6 right-6 text-white"> <!-- 缩小底部内边距 -->
+                    <input id="goal-title" class="bg-transparent text-2xl font-black outline-none w-full mb-1 placeholder-white/50" placeholder="目的地名称" onchange="updateGoalInfo()"> <!-- 缩小标题字体 -->
+                    <div class="flex items-center gap-3"> <!-- 缩小间距 -->
+                        <span id="day-counter" class="bg-white/20 px-2 py-1 rounded-full text-[9px] font-black italic tracking-widest uppercase">-- Days Left</span> <!-- 缩小字体和内边距 -->
+                        <input type="date" id="goal-date" class="bg-transparent text-[9px] font-bold outline-none border-b border-white/30" onchange="updateGoalInfo()"> <!-- 缩小字体 -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 mt-6 flex justify-between items-center text-[10px] font-black text-gray-300">
+                <div class="flex gap-4"> <!-- 缩小间距 -->
+                    <button onclick="chFontSize(2)" class="hover:text-e86850 transition-colors tracking-widest">FONT +</button>
+                    <button onclick="chFontSize(-2)" class="hover:text-e86850 transition-colors tracking-widest">FONT -</button>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="tracking-widest uppercase text-[9px]">Theme</span> <!-- 缩小字体 -->
+                    <input type="color" onchange="chColor(this.value)" id="color-picker" class="w-4 h-4 rounded-full border-none p-0 cursor-pointer overflow-hidden" value="#e86850"> <!-- 缩小颜色选择器 -->
+                </div>
+            </div>
+            <main class="px-6 mt-6 space-y-4" id="step-list"></main>
+            <div class="px-6">
+                <button onclick="addItem()" class="mt-4 text-[10px] font-black text-gray-400 border border-ffd5b8 py-4 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-gray-50 transition-all">
+                    + Add New Milestone
+                </button>
+                <!-- 灵感库入口按钮（移到功能区，无emoji） -->
+                <button onclick="openInspirePage()" class="mt-2 text-[10px] font-black text-e86850 border border-e86850 py-4 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-e86850/5 transition-all">
+                    灵感库
+                </button>
+                <p class="text-center text-[9px] text-gray-300 mt-2 italic">电脑端：鼠标悬停侧滑删除 | 手机端：侧滑显示删除 ❌</p>
+            </div>
+            <footer class="fixed bottom-0 left-0 right-0 p-8 bg-white/90 backdrop-blur-xl max-w-md mx-auto border-t border-gray-50 flex flex-col gap-4 z-[50]">
+                <div class="flex justify-between items-end px-2">
+                    <span class="text-[10px] font-black text-gray-400 uppercase italic tracking-widest">Saving Progress</span>
+                    <span class="text-4xl font-black italic tracking-tighter" id="progress-text">0%</span>
+                </div>
+                <!-- 新增：底部总进度条 -->
+                <div class="total-progress-bar">
+                    <div class="total-progress-fill" id="total-progress-fill" style="width: 0%"></div>
+                </div>
+                <button onclick="deposit()" class="fuggler-btn w-full text-white py-5 rounded-[2rem] text-xl font-black shadow-2xl active:scale-95 transition-all">
+                    存入梦想金
+                </button>
+            </footer>
+
+            <!-- 旅行小笔记弹窗 -->
+            <div id="overlay" onclick="closePopup()">
+                <div class="note-popup" onclick="event.stopPropagation()">
+                    <div class="popup-close" onclick="closePopup()">×</div>
+                    <label class="popup-label">旅行小笔记</label>
+                    <textarea id="popup-note" class="note-input" placeholder="记录你的旅行琐碎小细节～
+比如：
+- 车票：北京→上海 10.1 8:00
+- 酒店：XX民宿 靠近地铁站
+- 必带：转换插头、防晒霜..."></textarea>
+                    <button onclick="savePopupData()" class="fuggler-btn w-full text-white py-3 rounded-[1rem] text-sm font-black active:scale-95 transition-all">
+                        保存笔记
+                    </button>
+                </div>
+            </div>
+
+            <!-- 新增灵感弹窗 -->
+            <div id="inspire-popup" onclick="closeInspirePopup()">
+                <div class="inspire-form" onclick="event.stopPropagation()">
+                    <div class="popup-close" onclick="closeInspirePopup()">×</div>
+                    <label class="popup-label">新增旅行灵感</label>
+                    
+                    <label class="form-label">帖子链接</label>
+                    <input type="text" id="inspire-link" class="form-input" placeholder="粘贴小红书/抖音/公众号链接...">
+                    
+                    <label class="form-label">帖子标题</label>
+                    <input type="text" id="inspire-title" class="form-input" placeholder="请输入帖子标题（必填）">
+                    
+                    <label class="form-label">分类</label>
+                    <select id="inspire-category" class="form-select">
+                        <option value="美食">美食</option>
+                        <option value="交通">交通</option>
+                        <option value="景点">景点</option>
+                        <option value="住宿">住宿</option>
+                        <option value="人文">人文</option>
+                        <option value="购物">购物</option>
+                        <option value="避雷">避雷</option>
+                        <option value="攻略">攻略</option>
+                    </select>
+                    
+                    <label class="form-label">关联攒钱项目</label>
+                    <select id="inspire-step" class="form-select">
+                        <option value="">不关联</option>
+                        <!-- 动态填充攒钱项目 -->
+                    </select>
+                    
+                    <label class="form-label">预估花费（¥）</label>
+                    <input type="number" id="inspire-cost" class="form-input" placeholder="0" min="0">
+                    
+                    <button onclick="saveInspire()" class="fuggler-btn w-full text-white py-3 rounded-[1rem] text-sm font-black active:scale-95 transition-all">
+                        保存灵感
+                    </button>
+                </div>
+            </div>
+
+            <!-- 语录弹窗 -->
+            <div id="quote-overlay" onclick="closeQuote()">
+                <div class="bg-white rounded-[40px] p-10 text-center shadow-2xl max-w-xs transform transition-all scale-100">
+                    <div class="w-12 h-1 bg-ffd5b8 mx-auto mb-6 rounded-full"></div>
+                    <p id="quote-content" class="text-lg font-bold italic text-gray-800 leading-relaxed font-['Comic_Sans_MS']"></p>
+                    <p class="mt-8 text-[9px] font-black text-gray-300 uppercase tracking-[0.3em]">Click to continue</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 灵感库独立页面 -->
+    <div id="inspire-page">
+        <!-- 灵感库头部 -->
+        <div class="inspire-header">
+            <div class="inspire-back-btn" onclick="closeInspirePage()">←</div>
+            <div class="inspire-header-title" id="inspire-page-title">灵感库</div>
+        </div>
+        <!-- 灵感库内容区 -->
+        <div class="inspire-content">
+            <div class="inspire-add-btn" onclick="openInspirePopup()">新增灵感</div>
+            
+            <!-- 灵感分类标签 -->
+            <div class="inspire-tabs no-scrollbar" id="inspire-tabs">
+                <div class="inspire-tab active" onclick="filterInspire('all')">全部</div>
+                <div class="inspire-tab" onclick="filterInspire('美食')">美食</div>
+                <div class="inspire-tab" onclick="filterInspire('交通')">交通</div>
+                <div class="inspire-tab" onclick="filterInspire('景点')">景点</div>
+                <div class="inspire-tab" onclick="filterInspire('住宿')">住宿</div>
+                <div class="inspire-tab" onclick="filterInspire('人文')">人文</div>
+                <div class="inspire-tab" onclick="filterInspire('购物')">购物</div>
+                <div class="inspire-tab" onclick="filterInspire('避雷')">避雷</div>
+                <div class="inspire-tab" onclick="filterInspire('攻略')">攻略</div>
+            </div>
+            
+            <!-- 灵感列表 -->
+            <div id="inspire-list" class="space-y-2" onlongpress="enterEditMode()" ontouchstart="touchStartHandler(event)" ontouchend="touchEndHandler(event)"></div>
+            
+            <!-- 编辑模式提示 -->
+            <div id="edit-mode-tip" class="text-center text-gray-400 text-sm py-4" style="display: none;">
+                点击×删除灵感，再次长按退出编辑模式
+            </div>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div id="toast"></div>
+
+    <script>
+        // ========== 初始化：新增灵感库数据结构 ==========
+        function resetOldStorage() {
+            localStorage.removeItem('vb_final_v12');
+            const standardInit = {
+                idx: 0,
+                goals: [{ 
+                    name: "我的梦想旅行", 
+                    date: "2026-12-31", 
+                    current: 0, 
+                    totalGoal: 0, 
+                    bg: "", 
+                    pos: 50, 
+                    fontSize: 16, 
+                    color: "#e86850", 
+                    steps: [
+                        {id:'step_1', name:"机票预订", amount:2000, saved:0, note:""},
+                        {id:'step_2', name:"酒店住宿", amount:1500, saved:0, note:""},
+                        {id:'step_3', name:"当地开销", amount:1000, saved:0, note:""}
+                    ],
+                    // 新增：灵感库数据
+                    inspires: [
+                        {
+                            id: 'insp_1',
+                            link: 'https://xiaohongshu.com/notes/123456',
+                            title: '泰国曼谷必吃的5家米其林路边摊！人均50吃到撑',
+                            category: '美食',
+                            stepId: 'step_3',
+                            cost: 50,
+                            isChecked: false,
+                            createTime: new Date().toLocaleDateString()
+                        },
+                        {
+                            id: 'insp_2',
+                            link: 'https://douyin.com/video/789012',
+                            title: '泰国清迈网红咖啡馆打卡指南，拍照超出片！',
+                            category: '景点',
+                            stepId: '',
+                            cost: 0,
+                            isChecked: false,
+                            createTime: new Date().toLocaleDateString()
+                        }
+                    ]
+                }]
+            };
+            localStorage.setItem('vb_final_v12', JSON.stringify(standardInit));
+            return standardInit;
+        }
+
+        // 千分位格式化
+        function formatNumber(num) {
+            if (isNaN(num) || num === 0 || num === '') return '';
+            return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        }
+
+        // 初始化数据
+        let store = resetOldStorage();
+        let isSortLocked = false;
+        let currentEditStepIndex = -1;
+        let currentFilterCategory = 'all'; // 灵感库当前筛选分类
+        let isEditMode = false; // 灵感库编辑模式
+        let touchStartTime = 0; // 长按检测起始时间
+
+        // ========== 金额重分配逻辑 ==========
+        function redistributeSavings(goal) {
+            isSortLocked = true;
+            const currentSteps = JSON.parse(JSON.stringify(goal.steps));
+            let remaining = goal.current;
+
+            currentSteps.forEach(step => step.saved = 0);
+            for (let i = 0; i < currentSteps.length; i++) {
+                const step = currentSteps[i];
+                if (remaining <= 0) break;
+                const addAmount = Math.min(remaining, step.amount);
+                step.saved = addAmount;
+                remaining -= addAmount;
+            }
+
+            goal.steps.forEach(originalStep => {
+                const clonedStep = currentSteps.find(s => s.id === originalStep.id);
+                if (clonedStep) originalStep.saved = clonedStep.saved;
+            });
+
+            isSortLocked = false;
+            save();
+        }
+
+        // ========== 核心渲染函数 ==========
+        function render() {
+            const currentGoal = store.goals[store.idx];
+
+            // 基础样式渲染
+            const contentArea = document.getElementById('content-area');
+            contentArea.style.fontSize = currentGoal.fontSize + 'px';
+            contentArea.style.color = currentGoal.color;
+            document.getElementById('color-picker').value = currentGoal.color;
+            
+            // 总目标显示
+            const placeholderEl = document.getElementById('total-goal-placeholder');
+            const numberEl = document.getElementById('total-goal-number');
+            if (currentGoal.totalGoal === 0) {
+                placeholderEl.style.display = 'block';
+                numberEl.value = '';
+            } else {
+                placeholderEl.style.display = 'none';
+                numberEl.value = formatNumber(currentGoal.totalGoal);
+            }
+
+            // 渲染标签栏（保持字体大小不变）
+            const tabBar = document.getElementById('tab-bar');
+            tabBar.innerHTML = '';
+            store.goals.forEach((goal, i) => {
+                const tabStyle = i === store.idx 
+                    ? `style="color: ${goal.color} !important; border-color: ${goal.color} !important;"` 
+                    : '';
+                tabBar.innerHTML += `
+                    <div onclick="switchGoal(${i})" class="px-6 py-2 rounded-full text-[10px] font-black bg-gray-100 whitespace-nowrap goal-tab ${i===store.idx?'tab-active':''}" ${tabStyle} style="position: relative;">
+                        ${goal.name || '未命名'}
+                        <div class="goal-tab-delete" onclick="event.stopPropagation(); deleteGoal(${i})">×</div>
+                    </div>
+                `;
+            });
+            if(store.goals.length < 5) {
+                tabBar.innerHTML += `<div onclick="newGoal()" class="px-6 py-2 rounded-full text-[10px] font-black bg-zinc-200 text-zinc-600 cursor-pointer">+ NEW</div>`;
+            }
+
+            // 渲染背景图
+            const bgPreview = document.getElementById('bg-preview');
+            if(currentGoal.bg) {
+                bgPreview.src = currentGoal.bg;
+                bgPreview.style.display = 'block';
+            } else {
+                bgPreview.src = '';
+                bgPreview.style.display = 'none';
+            }
+            bgPreview.style.objectPosition = `50% ${currentGoal.pos}%`;
+
+            // 头部信息
+            document.getElementById('goal-title').value = currentGoal.name;
+            document.getElementById('goal-date').value = currentGoal.date;
+            
+            // 剩余天数
+            const days = Math.ceil((new Date(currentGoal.date) - new Date()) / (1000*60*60*24));
+            document.getElementById('day-counter').innerText = `${days > 0 ? days : 0} DAYS LEFT`;
+
+            // 渲染项目列表
+            const list = document.getElementById('step-list');
+            list.innerHTML = '';
+            
+            currentGoal.steps.forEach((s, i) => {
+                let sPercent = s.amount > 0 ? Math.min((s.saved / s.amount) * 100, 100) : 0;
+                const noteFirstLine = s.note ? s.note.split('\n')[0] : '';
+                
+                list.innerHTML += `
+                    <div class="swipe-item" data-id="${s.id}" 
+                        ontouchstart="hTouchStart(event)" onmousedown="hTouchStart(event)"
+                        ontouchmove="hTouchMove(event)" onmousemove="hTouchMove(event)"
+                        ontouchend="hTouchEnd(event, this)" onmouseup="hTouchEnd(event, this)">
+                        <div class="delete-btn" onclick="removeItem(${i})">删除</div>
+                        <div class="glass-card p-6 shadow-sm flex flex-col gap-3" onclick="openPopup(${i})">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="font-black text-lg">${s.name}</span> <!-- 缩小项目名称字体 -->
+                                <span class="amount-display">¥${s.saved} / ¥${s.amount}</span>
+                            </div>
+                            <div class="w-full bg-gray-100/50 h-1 rounded-full overflow-hidden">
+                                <div class="bg-black h-full progress-fill" style="width: ${sPercent}%"></div>
+                            </div>
+                            ${noteFirstLine ? `<div class="note-preview">📝 ${noteFirstLine}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // 总进度计算和渲染（新增进度条）
+            const progressPercent = currentGoal.totalGoal > 0 ? Math.min(Math.floor((currentGoal.current/currentGoal.totalGoal)*100), 100) : 0;
+            document.getElementById('progress-text').innerText = progressPercent + "%";
+            // 更新底部进度条宽度
+            document.getElementById('total-progress-fill').style.width = progressPercent + "%";
+            
+            // 填充关联项目下拉框
+            fillInspireStepSelect();
+            
+            // 初始化排序
+            initSort(); 
+            save();
+        }
+
+        // ========== 灵感库独立页面相关函数 ==========
+        // 打开灵感库独立页面
+        function openInspirePage() {
+            const currentGoal = store.goals[store.idx];
+            // 设置灵感库标题（当前胶囊名称）
+            document.getElementById('inspire-page-title').innerText = `${currentGoal.name || '未命名'} - 灵感库`;
+            // 显示灵感库页面
+            document.getElementById('inspire-page').style.display = 'flex';
+            // 重置筛选和编辑模式
+            currentFilterCategory = 'all';
+            isEditMode = false;
+            // 渲染灵感库
+            renderInspireLibrary();
+            // 重置分类标签样式
+            document.querySelectorAll('.inspire-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.innerText === '全部') {
+                    tab.classList.add('active');
+                }
+            });
+        }
+
+        // 关闭灵感库独立页面
+        function closeInspirePage() {
+            document.getElementById('inspire-page').style.display = 'none';
+            // 退出编辑模式
+            exitEditMode();
+        }
+
+        // 渲染灵感库
+        function renderInspireLibrary() {
+            const currentGoal = store.goals[store.idx];
+            const inspireList = document.getElementById('inspire-list');
+            const editTip = document.getElementById('edit-mode-tip');
+            
+            // 显示/隐藏编辑提示
+            editTip.style.display = isEditMode ? 'block' : 'none';
+            
+            // 添加/移除编辑模式类
+            if (isEditMode) {
+                inspireList.classList.add('edit-mode');
+            } else {
+                inspireList.classList.remove('edit-mode');
+            }
+            
+            // 筛选灵感
+            let filteredInspires = currentGoal.inspires || [];
+            if (currentFilterCategory !== 'all') {
+                filteredInspires = filteredInspires.filter(item => item.category === currentFilterCategory);
+            }
+
+            if (filteredInspires.length === 0) {
+                inspireList.innerHTML = `<div class="text-center text-gray-400 text-sm py-8">暂无${currentFilterCategory === 'all' ? '' : currentFilterCategory}类灵感，点击"新增灵感"添加吧～</div>`;
+                return;
+            }
+
+            // 渲染灵感卡片
+            inspireList.innerHTML = '';
+            filteredInspires.forEach((item, index) => {
+                // 获取关联项目名称
+                const step = currentGoal.steps.find(s => s.id === item.stepId);
+                const stepName = step ? step.name : '无';
+                
+                // 卡片是否晃动（编辑模式）
+                const shakeClass = isEditMode ? 'shake' : '';
+                
+                inspireList.innerHTML += `
+                    <div class="inspire-card ${shakeClass}" data-id="${item.id}" onlongpress="enterEditMode()" ontouchstart="touchStartHandler(event)" ontouchend="touchEndHandler(event)">
+                        <div class="inspire-delete" onclick="deleteInspire(${index})">×</div>
+                        <div class="inspire-title">${item.title}</div>
+                        <div class="inspire-meta">
+                            <span>分类：${item.category} | 关联：${stepName} | ¥${item.cost}</span>
+                            <span>${item.createTime}</span>
+                        </div>
+                        <div class="inspire-actions">
+                            <div class="check-btn ${item.isChecked ? 'checked' : ''}" onclick="toggleInspireCheck(${index})">✓</div>
+                            <div class="link-btn" onclick="copyInspireLink('${item.link}')">复制链接</div>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // 筛选灵感分类
+        function filterInspire(category) {
+            currentFilterCategory = category;
+            // 更新标签样式
+            document.querySelectorAll('.inspire-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.innerText === (category === 'all' ? '全部' : category)) {
+                    tab.classList.add('active');
+                }
+            });
+            // 重新渲染
+            renderInspireLibrary();
+        }
+
+        // 进入编辑模式（长按触发）
+        function enterEditMode() {
+            if (isEditMode) return;
+            isEditMode = true;
+            renderInspireLibrary();
+        }
+
+        // 退出编辑模式
+        function exitEditMode() {
+            if (!isEditMode) return;
+            isEditMode = false;
+            renderInspireLibrary();
+        }
+
+        // 长按检测处理
+        function touchStartHandler(event) {
+            touchStartTime = new Date().getTime();
+        }
+
+        function touchEndHandler(event) {
+            const touchEndTime = new Date().getTime();
+            // 长按超过500ms触发编辑模式
+            if (touchEndTime - touchStartTime >= 500) {
+                if (isEditMode) {
+                    exitEditMode();
+                } else {
+                    enterEditMode();
+                }
+            }
+        }
+
+        // 打开新增灵感弹窗
+        function openInspirePopup() {
+            document.getElementById('inspire-popup').style.display = 'flex';
+            // 清空表单
+            document.getElementById('inspire-link').value = '';
+            document.getElementById('inspire-title').value = '';
+            document.getElementById('inspire-cost').value = '';
+            // 自动检测剪贴板链接（需用户授权）
+            if (navigator.clipboard) {
+                navigator.clipboard.readText().then(text => {
+                    if (text && (text.includes('xiaohongshu') || text.includes('douyin') || text.includes('weixin') || text.includes('qq.com'))) {
+                        document.getElementById('inspire-link').value = text;
+                    }
+                }).catch(err => console.log('无法读取剪贴板：', err));
+            }
+        }
+
+        // 关闭新增灵感弹窗
+        function closeInspirePopup() {
+            document.getElementById('inspire-popup').style.display = 'none';
+        }
+
+        // 填充关联项目下拉框
+        function fillInspireStepSelect() {
+            const currentGoal = store.goals[store.idx];
+            const select = document.getElementById('inspire-step');
+            select.innerHTML = '<option value="">不关联</option>';
+            
+            currentGoal.steps.forEach(step => {
+                select.innerHTML += `<option value="${step.id}">${step.name}</option>`;
+            });
+        }
+
+        // 保存灵感
+        function saveInspire() {
+            const currentGoal = store.goals[store.idx];
+            if (!currentGoal.inspires) currentGoal.inspires = [];
+
+            // 获取表单数据
+            const link = document.getElementById('inspire-link').value;
+            const title = document.getElementById('inspire-title').value;
+            const category = document.getElementById('inspire-category').value;
+            const stepId = document.getElementById('inspire-step').value;
+            const cost = parseInt(document.getElementById('inspire-cost').value) || 0;
+
+            if (!title) {
+                showToast('请输入帖子标题');
+                return;
+            }
+
+            // 添加新灵感
+            currentGoal.inspires.push({
+                id: 'insp_' + Date.now(),
+                link: link || '',
+                title: title,
+                category: category,
+                stepId: stepId,
+                cost: cost,
+                isChecked: false,
+                createTime: new Date().toLocaleDateString()
+            });
+
+            // 关闭弹窗+重新渲染
+            closeInspirePopup();
+            renderInspireLibrary();
+            save();
+            showToast('灵感保存成功');
+        }
+
+        // 切换灵感打卡状态
+        function toggleInspireCheck(index) {
+            const currentGoal = store.goals[store.idx];
+            currentGoal.inspires[index].isChecked = !currentGoal.inspires[index].isChecked;
+            renderInspireLibrary();
+            save();
+        }
+
+        // 复制灵感链接
+        function copyInspireLink(link) {
+            if (!link) {
+                showToast('暂无链接可复制');
+                return;
+            }
+            // 复制到剪贴板
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('链接已复制，快去对应平台打开吧');
+            }).catch(err => {
+                showToast('复制失败，请手动复制');
+                console.error('复制失败：', err);
+            });
+        }
+
+        // 删除灵感
+        function deleteInspire(index) {
+            const currentGoal = store.goals[store.idx];
+            currentGoal.inspires.splice(index, 1);
+            renderInspireLibrary();
+            save();
+            showToast('灵感已删除');
+        }
+
+        // 提示弹窗
+        function showToast(text) {
+            const toast = document.getElementById('toast');
+            toast.innerText = text;
+            toast.style.display = 'block';
+            // 2秒后隐藏
+            setTimeout(() => {
+                toast.style.display = 'none';
+            }, 2000);
+        }
+
+        // ========== 笔记弹窗相关函数 ==========
+        function openPopup(index) {
+            currentEditStepIndex = index;
+            const step = store.goals[store.idx].steps[index];
+            document.getElementById('popup-note').value = step.note;
+            document.getElementById('overlay').style.display = 'flex';
+        }
+
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            currentEditStepIndex = -1;
+        }
+
+        function savePopupData() {
+            if (currentEditStepIndex === -1) return;
+            const curGoal = store.goals[store.idx];
+            const step = curGoal.steps[currentEditStepIndex];
+            step.note = document.getElementById('popup-note').value;
+            closePopup();
+            render();
+            showToast('笔记保存成功');
+        }
+
+        // ========== 拖拽排序 ==========
+        function initSort() {
+            const stepList = document.getElementById('step-list');
+            if (!stepList) return;
+            
+            if (stepList.sortable) stepList.sortable.destroy();
+            
+            stepList.sortable = Sortable.create(stepList, {
+                animation: 150,
+                handle: '.glass-card',
+                disabled: isSortLocked,
+                onEnd: (e) => {
+                    if (isSortLocked) return;
+                    
+                    const curGoal = store.goals[store.idx];
+                    const sortedIds = Array.from(e.from.children).map(el => el.getAttribute('data-id'));
+                    const newSteps = [];
+                    sortedIds.forEach(id => {
+                        const foundStep = curGoal.steps.find(s => s.id === id);
+                        if (foundStep) newSteps.push(foundStep);
+                    });
+                    curGoal.steps = newSteps;
+                    render();
+                }
+            });
+        }
+
+        // ========== 存入金额 ==========
+        function deposit() {
+            const v = prompt("输入本次投入的金额：");
+            if(v && !isNaN(v)) {
+                const addAmount = parseInt(v);
+                const curGoal = store.goals[store.idx];
+                curGoal.current += addAmount;
+                redistributeSavings(curGoal);
+                
+                document.getElementById('quote-content').innerText = monsterQuotes[Math.floor(Math.random()*monsterQuotes.length)];
+                document.getElementById('quote-overlay').style.display = 'flex';
+                render();
+            }
+        }
+
+        // ========== 背景图加载 ==========
+        function loadImgForCurrentGoal(input) {
+            const file = input.files[0];
+            if(!file) return;
+            
+            const currentGoal = store.goals[store.idx];
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentGoal.bg = e.target.result;
+                input.value = '';
+                render();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // ========== 辅助函数 ==========
+        function updateTotalGoal(value) {
+            const cleanValue = value.replace(/,/g, '');
+            const num = parseInt(cleanValue || 0);
+            store.goals[store.idx].totalGoal = isNaN(num) ? 0 : num;
+            render();
+        }
+
+        // 侧滑删除逻辑
+        let startX = 0;
+        function hTouchStart(e) { 
+            startX = e.touches ? e.touches[0].clientX : e.clientX;
+            e.currentTarget.style.transform = "translateX(0px)";
+        }
+        function hTouchMove(e) { 
+            let curX = e.touches ? e.touches[0].clientX : e.clientX;
+            let moveX = curX - startX;
+            if(moveX < 0) {
+                e.currentTarget.style.transform = `translateX(${Math.max(moveX, -80)}px)`;
+            }
+        }
+        function hTouchEnd(e, el) { 
+            let transform = el.style.transform;
+            let currentX = transform ? parseInt(transform.replace(/[^\d.-]/g, '')) : 0;
+            if(currentX < -30) {
+                el.style.transform = `translateX(-80px)`;
+            } else {
+                el.style.transform = `translateX(0px)`;
+            }
+        }
+
+        // 删除项目
+        function removeItem(i) {
+            const curGoal = store.goals[store.idx];
+            const itemName = curGoal.steps[i].name || '该项目';
+            if(confirm(`确定删除「${itemName}」这个项目吗？删除后资金会重新分配哦～`)) {
+                curGoal.steps.splice(i, 1);
+                redistributeSavings(curGoal);
+                render();
+            }
+        }
+
+        // 背景拖拽调整
+        let isDragging = false, lastY = 0;
+        function startDrag(e) { 
+            isDragging = true; 
+            lastY = e.touches ? e.touches[0].clientY : e.clientY; 
+        }
+        window.addEventListener('mousemove', (e) => {
+            if(!isDragging) return;
+            let delta = e.clientY - lastY;
+            lastY = e.clientY;
+            store.goals[store.idx].pos = Math.max(0, Math.min(100, store.goals[store.idx].pos + delta * 0.2));
+            document.getElementById('bg-preview').style.objectPosition = `50% ${store.goals[store.idx].pos}%`;
+        });
+        window.addEventListener('mouseup', () => { 
+            if(isDragging) { 
+                isDragging = false; 
+                save(); 
+            } 
+        });
+        window.addEventListener('touchmove', (e) => {
+            if(!isDragging) return;
+            let delta = e.touches[0].clientY - lastY;
+            lastY = e.touches[0].clientY;
+            store.goals[store.idx].pos = Math.max(0, Math.min(100, store.goals[store.idx].pos + delta * 0.2));
+            document.getElementById('bg-preview').style.objectPosition = `50% ${store.goals[store.idx].pos}%`;
+        });
+        window.addEventListener('touchend', () => { 
+            if(isDragging) { 
+                isDragging = false; 
+                save(); 
+            } 
+        });
+
+        // 切换胶囊
+        function switchGoal(i) { 
+            store.idx = i; 
+            render(); 
+        }
+
+        // 新建胶囊（新增灵感库初始化）
+        function newGoal() {
+            store.goals.push({ 
+                name: "新愿望", 
+                date: "2026-01-01", 
+                current: 0, 
+                totalGoal: 0, 
+                bg: "", 
+                pos: 50, 
+                fontSize: 16, 
+                color: "#e86850", 
+                steps: [{id:Date.now().toString(), name:"初始项目", amount:0, saved:0, note:""}],
+                inspires: [] // 初始化空灵感库
+            });
+            store.idx = store.goals.length - 1;
+            render();
+        }
+
+        // 删除胶囊
+        function deleteGoal(i) {
+            if(store.goals.length === 1) {
+                alert("不能删除最后一个胶囊哦！");
+                return;
+            }
+            if(confirm(`确定删除「${store.goals[i].name || '未命名'}」这个胶囊吗？删除后数据无法恢复！`)) {
+                if(i === store.idx) store.idx = 0;
+                else if(i < store.idx) store.idx -= 1;
+                store.goals.splice(i, 1);
+                render();
+            }
+        }
+
+        // 关闭语录弹窗
+        function closeQuote() { 
+            document.getElementById('quote-overlay').style.display = 'none'; 
+        }
+
+        // 更新胶囊信息
+        function updateGoalInfo() {
+            store.goals[store.idx].name = document.getElementById('goal-title').value;
+            store.goals[store.idx].date = document.getElementById('goal-date').value;
+            render();
+        }
+
+        // 调整字体大小
+        function chFontSize(v) { 
+            store.goals[store.idx].fontSize = Math.max(12, store.goals[store.idx].fontSize + v); 
+            render(); 
+        }
+
+        // 调整主题色
+        function chColor(v) { 
+            store.goals[store.idx].color = v; 
+            render(); 
+        }
+
+        // 新增项目
+        function addItem() {
+            store.goals[store.idx].steps.push({
+                id: Date.now().toString(), 
+                name: "新增阶段", 
+                amount:0, 
+                saved:0,
+                note:""
+            });
+            render();
+        }
+
+        // 保存数据
+        function save() { 
+            localStorage.setItem('vb_final_v12', JSON.stringify(store)); 
+        }
+
+        // 搞怪语录（无emoji）
+        const monsterQuotes = [
+            "一口吞掉你的梦想金！",
+            "存这点？不够塞牙缝～",
+            "攒钱嘛，丑着丑着就够了",
+            "都为你加油！冲！",
+            "钱越多，我的光芒越亮",
+            "认证：你超会攒钱的！",
+            "再存点！我的装备要升级啦～",
+            "梦想金到账！开心到起飞"
+        ];
+        
+        // 页面加载
+        window.onload = function() {
+            render();
+        };
+    </script>
+</body>
+</html>
