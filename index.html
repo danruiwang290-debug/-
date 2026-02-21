@@ -31,15 +31,15 @@
             position: relative; 
             overflow: hidden; 
             border-radius: 20px; 
-            margin-bottom: 0.4rem; 
-            height: 80px; 
+            margin-bottom: 0.2rem; 
+            height: 70px; /* 缩小项目条高度 */
         }
         .delete-btn { 
             position: absolute; 
             right: 0; 
             top: 0; 
             bottom: 0; 
-            width: 70px; 
+            width: 60px; /* 缩小删除按钮宽度 */
             background: #ff9e80; 
             color: white; 
             display: flex; 
@@ -49,14 +49,14 @@
             border-radius: 8px 16px; 
             z-index: 1; 
             cursor: pointer; 
-            font-size: 12px; 
+            font-size: 11px; 
             letter-spacing: 1px;
             border: 2px solid #333;
         }
         .header-box { 
-            height: 140px; 
-            border-bottom-left-radius: 30px; 
-            border-bottom-right-radius: 30px; 
+            height: 100px; /* 大幅缩小头部高度 */
+            border-bottom-left-radius: 20px; 
+            border-bottom-right-radius: 20px; 
             overflow: hidden; 
             position: relative; 
             cursor: ns-resize; 
@@ -134,24 +134,24 @@
         }
         #tab-bar .goal-tab {
             color: #333 !important; 
-            font-size: 9px !important; 
+            font-size: 8px !important; /* 缩小标签字体 */
             background: #fff !important; 
             border: 1px solid #ffd5b8 !important; 
             transition: all 0.2s ease;
             border-radius: 8px 16px !important; 
-            padding: 2px 8px !important; 
+            padding: 2px 6px !important; /* 缩小标签内边距 */
             margin: 0 !important;
         }
         .goal-tab-delete {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 14px;
-            height: 14px;
+            top: -3px;
+            right: -3px;
+            width: 12px; /* 缩小删除按钮 */
+            height: 12px;
             background: #ff9e80;
             color: white;
             border-radius: 8px 2px;
-            font-size: 9px;
+            font-size: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -163,13 +163,14 @@
         .goal-tab:hover .goal-tab-delete {
             opacity: 1;
         }
+        /* 关键修改：缩小总目标数字输入框宽度，不再遮挡文字 */
         .total-goal-number {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 15;
-            font-size: 24px;
+            font-size: 18px; /* 缩小字体 */
             font-weight: 900;
             color: white;
             text-align: center;
@@ -179,8 +180,9 @@
             border: none;
             background: transparent;
             outline: none;
-            width: 100%;
-            padding: 0 15px;
+            width: 60%; /* 关键：限制宽度为60%，不再全屏 */
+            max-width: 200px; /* 最大宽度限制 */
+            padding: 0 10px;
             box-sizing: border-box;
             font-family: "Comic Sans MS", 幼圆;
         }
@@ -190,13 +192,15 @@
             left: 50%;
             transform: translate(-50%, -50%);
             z-index: 14;
-            font-size: 14px;
+            font-size: 12px; /* 缩小字体 */
             font-weight: 600;
             color: white;
             text-align: center;
             text-shadow: 2px 2px 0 #333;
             opacity: 0.8;
             font-family: "Comic Sans MS", 幼圆;
+            width: 60%;
+            max-width: 200px;
         }
         .fuggler-btn {
             background: #e86850 !important;
@@ -204,21 +208,21 @@
             font-family: "Comic Sans MS", 幼圆 !important;
             text-shadow: 1px 1px 0 #000 !important;
             border-radius: 8px 16px !important;
-            padding: 6px 0 !important;
-            font-size: 14px !important;
+            padding: 4px 0 !important; /* 缩小按钮内边距 */
+            font-size: 12px !important; /* 缩小按钮字体 */
         }
         .note-preview {
-            font-size: 9px;
+            font-size: 8px; /* 缩小字体 */
             color: #555;
-            margin-top: 2px;
-            padding-left: 4px;
+            margin-top: 1px;
+            padding-left: 3px;
             border-left: 2px solid #ffd5b8;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
         }
         .amount-display {
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
             font-weight: bold;
             color: #e86850;
             opacity: 0.8;
@@ -228,22 +232,22 @@
             background: transparent;
             border: none;
             outline: none;
-            font-size: 16px;
+            font-size: 14px; /* 缩小字体 */
             font-weight: bold;
             color: #333;
             width: 65%;
             text-align: left;
-            padding: 2px 0;
+            padding: 1px 0;
         }
         /* 目标金额输入框样式 */
         .target-amount-input {
             background: transparent;
             border: none;
             outline: none;
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
             font-weight: bold;
             color: #e86850;
-            width: 60px;
+            width: 50px; /* 缩小宽度 */
             text-align: right;
             pointer-events: auto;
         }
@@ -253,7 +257,7 @@
             display: flex;
             align-items: center;
             gap: 2px;
-            padding: 2px 0;
+            padding: 1px 0;
         }
         #quote-overlay { 
             background: rgba(0,0,0,0.8); 
@@ -263,7 +267,7 @@
             z-index: 100; 
             align-items: center; 
             justify-content: center; 
-            padding: 30px; 
+            padding: 20px; 
             backdrop-filter: blur(5px); 
         }
 
@@ -281,18 +285,19 @@
         }
         .inspire-header {
             background: linear-gradient(135deg, #ffd5b8, #e86850);
-            padding: 12px 10px;
-            border-bottom-left-radius: 30px;
-            border-bottom-right-radius: 30px;
+            padding: 8px 8px; /* 缩小头部内边距 */
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
             color: white;
             position: relative;
+            height: 60px; /* 固定头部高度 */
         }
         .inspire-back-btn {
             position: absolute;
-            top: 12px;
-            left: 10px;
-            width: 28px;
-            height: 28px;
+            top: 8px;
+            left: 8px;
+            width: 24px; /* 缩小按钮 */
+            height: 24px;
             background: rgba(255,255,255,0.9);
             border-radius: 8px 12px;
             display: flex;
@@ -302,18 +307,18 @@
             border: 2px solid #333;
             color: #e86850;
             font-weight: bold;
-            font-size: 12px;
+            font-size: 10px;
         }
         .inspire-header-title {
             text-align: center;
-            font-size: 16px;
+            font-size: 14px; /* 缩小字体 */
             font-weight: bold;
             text-shadow: 1px 1px 0 #333;
-            padding-top: 6px;
+            padding-top: 4px;
         }
         .inspire-content {
             flex: 1;
-            padding: 10px;
+            padding: 8px; /* 缩小内边距 */
         }
         .inspire-add-btn {
             display: block;
@@ -321,29 +326,29 @@
             background: #e86850;
             border: 2px solid #333;
             border-radius: 8px 16px;
-            padding: 8px;
+            padding: 6px; /* 缩小内边距 */
             color: white;
             font-weight: bold;
             font-family: "Comic Sans MS", 幼圆;
             text-shadow: 1px 1px 0 #000;
             text-align: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 10px; /* 缩小字体 */
         }
         .inspire-tabs {
             display: flex;
-            gap: 3px;
+            gap: 2px;
             overflow-x: auto;
-            padding-bottom: 4px;
-            margin-bottom: 8px;
+            padding-bottom: 3px;
+            margin-bottom: 6px;
         }
         .inspire-tab {
-            padding: 2px 8px;
+            padding: 2px 6px; /* 缩小内边距 */
             background: #fff;
             border: 1px solid #ffd5b8;
             border-radius: 8px 12px;
-            font-size: 8px;
+            font-size: 7px; /* 缩小字体 */
             font-weight: bold;
             color: #333;
             cursor: pointer;
@@ -356,23 +361,23 @@
         }
         .inspire-card {
             background: white;
-            border-radius: 12px;
-            padding: 8px;
-            margin-bottom: 6px;
+            border-radius: 10px; /* 缩小圆角 */
+            padding: 6px; /* 缩小内边距 */
+            margin-bottom: 4px;
             border: 1px solid #ffd5b8;
             position: relative;
             transition: transform 0.2s ease;
         }
         .inspire-delete {
             position: absolute;
-            top: -4px;
-            right: -4px;
-            width: 16px;
-            height: 16px;
+            top: -3px;
+            right: -3px;
+            width: 14px; /* 缩小按钮 */
+            height: 14px;
             background: #ff9e80;
             color: white;
             border-radius: 8px 4px;
-            font-size: 9px;
+            font-size: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -381,9 +386,9 @@
             z-index: 10;
         }
         .inspire-title {
-            font-size: 11px;
+            font-size: 10px; /* 缩小字体 */
             font-weight: bold;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
             color: #333;
             white-space: nowrap;
             overflow: hidden;
@@ -392,24 +397,24 @@
         .inspire-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 8px;
+            font-size: 7px; /* 缩小字体 */
             color: #666;
-            margin-bottom: 4px;
+            margin-bottom: 2px;
         }
         .inspire-actions {
             display: flex;
-            gap: 4px;
+            gap: 3px;
             align-items: center;
         }
         .check-btn {
-            width: 16px;
-            height: 16px;
+            width: 14px; /* 缩小按钮 */
+            height: 14px;
             border-radius: 8px 4px;
             border: 1px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 8px;
+            font-size: 7px;
             cursor: pointer;
             background: #fff;
             color: transparent;
@@ -419,7 +424,7 @@
             color: white;
         }
         .link-btn {
-            font-size: 8px;
+            font-size: 7px; /* 缩小字体 */
             color: #e86850;
             text-decoration: underline;
             cursor: pointer;
@@ -439,7 +444,7 @@
             max-width: 300px;
             background: linear-gradient(135deg, #ffd5b8, #e86850);
             border-radius: 20px;
-            padding: 15px;
+            padding: 12px; /* 缩小内边距 */
             border: 2px solid #333;
         }
         .form-input {
@@ -448,10 +453,10 @@
             border: none;
             outline: none;
             border-radius: 8px 12px;
-            padding: 6px 8px;
-            margin-bottom: 6px;
+            padding: 5px 7px; /* 缩小内边距 */
+            margin-bottom: 5px;
             font-family: "Comic Sans MS", 幼圆;
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
         }
         .form-select {
             width: 100%;
@@ -459,13 +464,13 @@
             border: none;
             outline: none;
             border-radius: 8px 12px;
-            padding: 6px 8px;
-            margin-bottom: 6px;
+            padding: 5px 7px; /* 缩小内边距 */
+            margin-bottom: 5px;
             font-family: "Comic Sans MS", 幼圆;
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
         }
         .form-label {
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
             font-weight: bold;
             color: white;
             text-shadow: 1px 1px 0 #333;
@@ -474,14 +479,14 @@
         }
         #toast {
             position: fixed;
-            bottom: 20px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             background: rgba(0,0,0,0.8);
             color: white;
-            padding: 4px 10px;
+            padding: 3px 8px; /* 缩小内边距 */
             border-radius: 8px 12px;
-            font-size: 10px;
+            font-size: 9px; /* 缩小字体 */
             font-family: "Comic Sans MS", 幼圆;
             display: none;
             z-index: 500;
@@ -496,47 +501,47 @@
             box-shadow: none;
         }
         #tab-bar {
-            padding: 8px 10px 2px 10px !important;
+            padding: 6px 8px 1px 8px !important; /* 缩小内边距 */
             gap: 2px !important;
+            margin-bottom: 2px !important;
         }
         #content-area {
-            padding: 0 10px !important;
+            padding: 0 8px !important; /* 缩小内边距 */
         }
         #header-container {
-            margin: 2px 0 2px 0 !important;
+            margin: 1px 0 1px 0 !important;
         }
-        /* 删除主题色相关的样式区域 */
         .px-6.mt-6.flex {
-            padding: 0 10px !important;
-            margin: 2px 0 2px 0 !important;
+            padding: 0 8px !important; /* 缩小内边距 */
+            margin: 1px 0 1px 0 !important;
         }
         main#step-list {
-            padding: 0 10px !important;
-            margin: 0 0 2px 0 !important;
-            gap: 0.2rem !important;
+            padding: 0 8px !important; /* 缩小内边距 */
+            margin: 0 0 1px 0 !important;
+            gap: 0.1rem !important;
         }
         .glass-card.p-6 {
-            padding: 8px !important;
+            padding: 6px !important; /* 缩小内边距 */
             gap: 1px !important;
             height: 100%;
             box-sizing: border-box;
         }
         .px-6:has(.mt-4.text-[10px]) {
-            padding: 0 10px !important;
-            margin: 0 0 2px 0 !important;
+            padding: 0 8px !important; /* 缩小内边距 */
+            margin: 0 0 1px 0 !important;
         }
         .mt-4.text-[10px], .mt-2.text-[10px] {
-            margin-top: 2px !important;
-            padding: 4px 0 !important;
-            font-size: 8px !important;
+            margin-top: 1px !important;
+            padding: 3px 0 !important; /* 缩小内边距 */
+            font-size: 7px !important; /* 缩小字体 */
         }
         .text-center.text-[9px] {
-            font-size: 7px !important;
+            font-size: 6px !important; /* 缩小字体 */
             margin-top: 1px !important;
             margin-bottom: 1px !important;
         }
         footer {
-            padding: 6px 10px !important;
+            padding: 4px 8px !important; /* 缩小内边距 */
             gap: 2px !important;
             border-top: 1px solid #f0f0f0;
             position: fixed;
@@ -545,14 +550,15 @@
             right: 0;
             max-width: 100%;
             box-sizing: border-box;
+            height: 80px; /* 固定底部高度 */
         }
         .total-progress-bar {
             width: 100%;
-            height: 5px;
+            height: 4px; /* 缩小进度条高度 */
             background: rgba(240, 240, 240, 0.5);
             border-radius: 3px;
             overflow: hidden;
-            margin-bottom: 2px;
+            margin-bottom: 1px;
         }
         .total-progress-fill {
             height: 100%;
@@ -561,10 +567,23 @@
             border-radius: 3px;
         }
         #progress-text {
-            font-size: 20px !important;
+            font-size: 16px !important; /* 缩小字体 */
         }
         .text-[10px].font-black.text-gray-400 {
-            font-size: 7px !important;
+            font-size: 6px !important; /* 缩小字体 */
+        }
+        /* 目的地标题样式优化 */
+        #goal-title {
+            font-size: 14px !important; /* 缩小字体 */
+            padding: 0 !important;
+            margin-bottom: 2px !important;
+        }
+        #day-counter {
+            font-size: 7px !important; /* 缩小字体 */
+            padding: 1px 4px !important; /* 缩小内边距 */
+        }
+        #goal-date {
+            font-size: 7px !important; /* 缩小字体 */
         }
     </style>
 </head>
@@ -577,10 +596,10 @@
                 <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
                 <div id="total-goal-placeholder" class="total-goal-placeholder">攒钱总目标</div>
                 <input type="text" id="total-goal-number" class="total-goal-number" placeholder="" onblur="updateTotalGoal(this.value)" onfocus="this.value = this.value.replace(/,/g, '')">
-                <label class="absolute top-6 right-6 w-10 h-10 flex items-center justify-center text-white/80 text-2xl cursor-pointer bg-white/10 backdrop-blur-md rounded-full border border-white/20">
+                <label class="absolute top-4 right-4 w-8 h-8 flex items-center justify-center text-white/80 text-xl cursor-pointer bg-white/10 backdrop-blur-md rounded-full border border-white/20">
                     ＋<input type="file" accept="image/*" class="hidden" id="bg-file-input" onchange="loadImgForCurrentGoal(this)">
                 </label>
-                <div class="absolute bottom-4 left-6 right-6 text-white">
+                <div class="absolute bottom-3 left-4 right-4 text-white">
                     <input id="goal-title" class="bg-transparent text-xl font-black outline-none w-full mb-1 placeholder-white/50" placeholder="目的地名称" onchange="updateGoalInfo()">
                     <div class="flex items-center gap-2">
                         <span id="day-counter" class="bg-white/20 px-2 py-1 rounded-full text-[8px] font-black italic tracking-widest uppercase">-- Days Left</span>
@@ -589,7 +608,6 @@
                 </div>
             </div>
 
-            <!-- 删除主题色修改的按钮区域 -->
             <div class="px-6 mt-6 flex justify-between items-center text-[10px] font-black text-gray-300">
                 <div class="flex gap-3">
                     <button onclick="chFontSize(2)" class="hover:text-e86850 transition-colors tracking-widest">FONT +</button>
@@ -599,23 +617,23 @@
             
             <main class="px-6 mt-6 space-y-3" id="step-list"></main>
             <div class="px-6">
-                <button onclick="addItem()" class="mt-4 text-[10px] font-black text-gray-400 border border-ffd5b8 py-3 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-gray-50 transition-all">
+                <button onclick="addItem()" class="mt-2 text-[10px] font-black text-gray-400 border border-ffd5b8 py-2 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-gray-50 transition-all">
                     + Add New Milestone
                 </button>
-                <button onclick="openInspirePage()" class="mt-2 text-[10px] font-black text-e86850 border border-e86850 py-3 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-e86850/5 transition-all">
+                <button onclick="openInspirePage()" class="mt-1 text-[10px] font-black text-e86850 border border-e86850 py-2 rounded-2xl w-full uppercase tracking-[0.2em] hover:bg-e86850/5 transition-all">
                     灵感库
                 </button>
-                <p class="text-center text-[8px] text-gray-300 mt-1 italic">电脑端：右键项目条删除 | 鼠标按住左滑也可删除 ❌</p>
+                <p class="text-center text-[7px] text-gray-300 mt-1 italic">电脑端：右键项目条删除 | 鼠标按住左滑也可删除 ❌</p>
             </div>
             <footer class="fixed bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-xl max-w-md mx-auto border-t border-gray-50 flex flex-col gap-2 z-[50]">
                 <div class="flex justify-between items-end px-2">
-                    <span class="text-[9px] font-black text-gray-400 uppercase italic tracking-widest">Saving Progress</span>
-                    <span class="text-3xl font-black italic tracking-tighter" id="progress-text">0%</span>
+                    <span class="text-[8px] font-black text-gray-400 uppercase italic tracking-widest">Saving Progress</span>
+                    <span class="text-2xl font-black italic tracking-tighter" id="progress-text">0%</span>
                 </div>
                 <div class="total-progress-bar">
                     <div class="total-progress-fill" id="total-progress-fill" style="width: 0%"></div>
                 </div>
-                <button onclick="deposit()" class="fuggler-btn w-full text-white py-4 rounded-[2rem] text-lg font-black shadow-2xl active:scale-95 transition-all">
+                <button onclick="deposit()" class="fuggler-btn w-full text-white py-3 rounded-[2rem] text-base font-black shadow-2xl active:scale-95 transition-all">
                     存入梦想金
                 </button>
             </footer>
@@ -718,8 +736,7 @@
                     totalGoal: 0, 
                     bg: "", 
                     pos: 50, 
-                    fontSize: 16, 
-                    // 删除主题色相关的配置项
+                    fontSize: 14, // 缩小默认字体
                     steps: [
                         {id:'step_1', name:"交通", amount:0, saved:0, note:""},
                         {id:'step_2', name:"购物", amount:0, saved:0, note:""},
@@ -777,7 +794,6 @@
 
             const contentArea = document.getElementById('content-area');
             contentArea.style.fontSize = currentGoal.fontSize + 'px';
-            // 删除主题色相关的渲染代码
             
             const placeholderEl = document.getElementById('total-goal-placeholder');
             const numberEl = document.getElementById('total-goal-number');
@@ -792,7 +808,6 @@
             const tabBar = document.getElementById('tab-bar');
             tabBar.innerHTML = '';
             store.goals.forEach((goal, i) => {
-                // 删除主题色相关的tab样式
                 tabBar.innerHTML += `
                     <div onclick="switchGoal(${i})" class="px-6 py-2 rounded-full text-[10px] font-black bg-gray-100 whitespace-nowrap goal-tab ${i===store.idx?'tab-active':''}" style="position: relative;">
                         ${goal.name || '未命名'}
@@ -832,7 +847,7 @@
                         ontouchstart="hTouchStart(event)" onmousedown="hTouchStart(event)"
                         ontouchmove="hTouchMove(event)" onmousemove="hTouchMove(event)"
                         ontouchend="hTouchEnd(event, this)" onmouseup="hTouchEnd(event, this)"
-                        oncontextmenu="event.preventDefault(); removeItem(${i});"> <!-- 新增右键删除 -->
+                        oncontextmenu="event.preventDefault(); removeItem(${i});">
                         <div class="delete-btn" onclick="removeItem(${i})">删除</div>
                         <div class="glass-card p-6 shadow-sm flex flex-col gap-3">
                             <div class="flex justify-between items-center w-full">
@@ -1219,8 +1234,7 @@
                 totalGoal: 0, 
                 bg: "", 
                 pos: 50, 
-                fontSize: 16, 
-                // 删除主题色相关配置
+                fontSize: 14, // 缩小默认字体
                 steps: [
                     {id:Date.now().toString(), name:"交通", amount:0, saved:0, note:""},
                     {id:Date.now().toString()+1, name:"购物", amount:0, saved:0, note:""},
@@ -1258,11 +1272,9 @@
         }
 
         function chFontSize(v) { 
-            store.goals[store.idx].fontSize = Math.max(12, store.goals[store.idx].fontSize + v); 
+            store.goals[store.idx].fontSize = Math.max(10, store.goals[store.idx].fontSize + v); // 调整最小字体
             render(); 
         }
-
-        // 删除chColor函数
 
         function addItem() {
             store.goals[store.idx].steps.push({
